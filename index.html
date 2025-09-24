@@ -1,0 +1,671 @@
+﻿
+<HTML>
+<HEAD>
+<META name="GENERATOR" content="IBM WebSphere Studio Homepage Builder Version 13.0.6.0 for Windows">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<META http-equiv="Content-Style-Type" content="text/css">
+<META name="IBM:HPB-Input-Mode" content="mode/flm; pagewidth=750; pageheight=900">
+<TITLE></TITLE>
+
+<style>
+  body { font-family: sans-serif; line-height: 1.6; }
+  .insert { background-color: #c8f7c5; } /* 緑: text2のみ */
+  .delete { background-color: #f7c5c5; } /* 赤: text1のみ */
+  .change { background-color: #fff3a3; } /* 黄: 両方変更 */
+  .box { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; white-space: pre-wrap; }
+  h3 { margin-bottom: 5px; }
+</style>
+
+</HEAD>
+<body>
+
+
+<canvas id="imageBack" width="1024" height="710" style=" position: absolute;top: 0px;left: 0px;"></canvas>
+<canvas id="imageKB" width="999" height="357" ></canvas>
+<canvas id="imageMato" width="560" height="115" ></canvas>
+<canvas id="imageDumy" width="1024" height="710"></canvas>
+<canvas id="imageKBOrange" width="999" height="357" ></canvas>
+<canvas id="imageMatoAll" width="1024" height="115" ></canvas>
+
+<script src="Data/functions.js"></script>
+<script src="Data/key.js"></script>
+<script src="Data/diff_match_patch.js"></script>
+
+
+
+
+<fieldset id="field1" style="font-size:16px;" >
+	<input type="radio" id="radio1" name="radioGroup" value="基礎編" checked>
+	<label for="radio1">基礎編</label><br>
+	<input type="radio" id="radio2" name="radioGroup" value="初級編">
+	<label for="radio2">初級編</label><br>
+	<input type="radio" id="radio3" name="radioGroup" value="中級編">
+	<label for="radio3">中級編</label><br>
+	<input type="radio" id="radio4" name="radioGroup" value="上級編">
+	<label for="radio4">上級編</label><br>
+</fieldset>
+
+<fieldset id="field2" >
+
+	<input type="text" id="txt1" class="text-element"  style="font-size:14px;" readOnly value="時間：">
+	<input type="text" id="txt2" class="text-element"  style="font-size:14px;" readOnly value="正解：">
+	<input type="text" id="txt3" class="text-element"  style="font-size:14px;" readOnly value="ミス：">
+</fieldset>
+
+<fieldset id="field3" style="display:none;">
+
+	<input type="text" id="TxtScale" class="label-element"  readOnly value="" >
+
+	<button class="button"  id="btnOpen"  onclick="openClick()">問題を開く</button>
+	<button class="button"  id="btnRecord"  onclick="recordClick()">記録する</button>
+
+</fieldset>
+
+
+<div id="TxtReadOnly"
+     contenteditable="false"
+     style="position: absolute; top: 22px; left: 148px;
+            width: 680px; height: 320px;
+            //background: transparent; 
+	    background-color:floralwhite;
+	    border:double
+	    font-size:x-large;
+	    font-family:'MS P明朝',serif;
+	    line-Height:1.4;
+            color: navy;
+	    display:none;
+	    z-index: 10; /* z-indexでcanvasより手前へ */
+            overflow: auto;">
+</div>
+
+<div id="TxtInput"
+     contenteditable="true"
+     style="position: absolute; top: 380px; left: 148px;
+            width: 680px; height: 320px;
+            //background: transparent; 
+	    background-color:white;
+	    border:double
+	    font-size:x-large;
+	    font-family:'MS P明朝',serif;
+	    line-Height:1.4;
+            color: black;
+	    display:none;
+	    z-index: 10; /* z-indexでcanvasより手前へ */
+            overflow: auto;">
+</div>
+
+
+
+
+
+<input type="file" id="fileInput" accept="text/plain" style="display:none;">
+
+<div class="container">
+	<button class="btnKansei" id="btnKansei" onclick="kanseiClick()" style="display:none;">採点</button>
+	<button class="btnStop"   id="btnStop"   onclick="stopClick()">止める</button>
+	<button class="btnStart"  id="btnStart"  onclick="startClick()">スタート</button>
+
+</div>
+
+<div class="container2">
+	<input type="text" id="label1" class="label-element"  readOnly value=" ">
+	<input type="text" id="label2" class="label-element"  readOnly value=" ">
+	<input type="text" id="label3" class="label-element"  readOnly value="" style="border:none; background-color:rgba(0,0,0,0);">
+</div>
+
+	<input type="text" id="label10" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:35px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label11" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:135px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label12" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:235px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label13" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:335px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label14" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:435px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label15" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:535px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label16" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:635px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label17" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:735px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label18" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:835px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+	<input type="text" id="label19" class="label-element"  readOnly value="" style="position:absolute;top:460px;left:935px;font-size:28;border:none; color:blue;background-color:rgba(0,0,0,0);">
+
+	<input type="text" id="label5" class="label-element"  readOnly value="Good Job!" style="position:absolute;top:390px;left:280px;width:450;display:none;font-size:100; color:red; background-color:lightblue;border-radius:10px;">
+
+<div class="container3">
+	<input type="text" id="label4" class="label-element"  readOnly value="" style="font-size:16px; border:none; background-color:rgba(0,0,0,0);">
+</div>
+
+<textarea id="myTextarea1" rows="20" cols="50" style="display:none;"></textarea>
+<script src="Data/Level1.js"></script>
+
+<textarea id="myTextarea2" rows="30" cols="50" style="display:none;"></textarea>
+<script src="Data/Level2.js"></script>
+
+<textarea id="myTextarea3" rows="20" cols="50" style="display:none;"></textarea>
+<script src="Data/Level3.js"></script>
+
+<audio id="buSound"     src="bu.wav" preload="auto"></audio>
+<audio id="pinponSound" src="pinpon.wav" preload="auto"></audio>
+<audio id="kanseiSound" src="kansei.wav" preload="auto"></audio>
+
+
+<style>
+
+ #imageKB{
+	position: absolute;
+ 	top: 20px;
+ 	left: 20px;
+	display:none;
+ }
+
+ #imageKBOrage{
+	position: absolute;
+ 	top: 20px;
+ 	left: 20px;
+	display:none;
+ }
+
+
+ #imageMato{
+	position: absolute;
+ 	top: 400px;
+ 	left: 20px;
+	display:none;
+ }
+
+ #imageMatoAll{
+	position: absolute;
+ 	top: 400px;
+ 	left: 20px;
+	display:none;
+ }
+
+ #imageDumy{
+	position: absolute;
+ 	top: 40px;
+ 	left: 20px;
+	display:none;
+ }
+
+
+ #field1{
+	position: absolute;
+ 	top: 8px;
+ 	left: 856px;
+ 	width: 130px;
+ 	height: 145x;
+ 	border: 1px solid black;
+ 	font-size:12px;
+ 	background-color: #f0f0f0;
+
+ }
+
+
+ #field2{
+ 	position: absolute;
+  	top:616px;
+  	left:856px;
+  	width: 130px;
+  	height: 121x;
+  	border:1px solid black;
+  	background-color: #f0f0f0;
+
+ }
+
+ #field3{
+ 	position: absolute;
+  	top:10px;
+  	left:135px;
+  	width: 680px;
+  	height: 680px;
+  	border:1px solid black;
+  	background-color: #626A55;
+
+ }
+
+/*この部分は内容が正しく表示された！
+.text-element{
+ position:absolute;
+ width:100px;
+ height:20;
+}
+*/
+
+ #txt1{
+ 	top:3px;
+ 	left:5px;
+ 	width:140;
+ 	height:25;
+ }
+
+ #txt2{
+ 	top:30px;
+ 	left:5px;
+ 	width:140;
+ 	height:25;
+ }
+ #txt3{
+ 	top:55px;
+ 	left:5px;
+ 	width:140;
+ 	height:25;
+ }
+
+  .container{
+     position:absolute;
+     width:110px;
+     height:180px;
+     left:24px;
+     top:544px;
+   }
+
+  .btnKansei{
+     position:absolute;
+     top:5px;
+     left:5px;
+     width:100px;
+     height:50px;
+     //background-color:lightblue;
+     //border:none;
+     cursor:pointer;
+     text-align:center;
+     //line-height:50px;
+   }
+  .btnStop{
+     position:absolute;
+     top:57px;
+     left:5px;
+     width:100px;
+     height:50px;
+     //background-color:lightblue;
+     //border:ridge; 
+     //border-width:4px
+     cursor:pointer;
+     text-align:center;
+     //line-height:50px;
+   }
+  .btnStart{
+     position:absolute;
+     top:110px;
+     left:5px;
+     width:100px;
+     height:50px;
+     //background-color:lightblue;
+     //border:ridge; 
+     //border-width:4px
+     cursor:pointer;
+     text-align:center;
+     //line-height:50px;
+   }
+
+  .container2{
+     position:absolute;
+     width:400px;
+     height:140px;
+     left:100px;
+     top:5px;
+   }
+
+  .container3{
+     position:absolute;
+     width:60px;
+     height:30x;
+     left:20px;
+     top:20px;
+   }
+
+ #label1{
+	position:absolute; 	
+	top:43px;
+ 	left:5px;
+ 	width:500;
+ 	height:43;
+	/*font-size:45px;*/
+	font-size:xx-large;
+	color:navy;
+	background-color:cyan;
+ }
+
+ #label2{
+	position:absolute;
+ 	top:90px;
+ 	left:5px;
+ 	width:500;
+ 	height:43;
+	font-size:xx-large;
+	color:red;
+	background-color:white;
+ }
+
+ #label3{
+	position:absolute; 	
+	top:0px;
+ 	left:5px;
+ 	width:500;
+ 	height:43;
+	/*font-size:45px;*/
+	font-size:xx-large;
+	color:navy;
+	background-color:cyan;
+ }
+
+ #label4{
+	position:absolute; 	
+	top:0px;
+ 	left:0px;
+ 	width:110;
+ 	//height:43;
+	/*font-size:45px;*/
+	//font-size:xx-large;
+	//color:navy;
+	//background-color:cyan;
+ }
+
+
+ #TxtScale{
+	position:absolute; 	
+	top:338px;
+ 	left:10px;
+ 	width:680;
+ 	height:25;
+	//border:none;
+	color:white;
+	background-color:navy;
+	text-align:center;
+ }
+
+ #btnOpen{
+	position:absolute; 	
+	top:170px;
+ 	left:720px;
+ 	width:135;
+ 	height:60;
+	//border:none;
+	//background-color:deepskyblue;
+ }
+
+ #btnRecord{
+	position:absolute; 	
+	top:235px;
+ 	left:720px;
+ 	width:135;
+ 	height:60;
+	//border:none;
+	//background-color:deepskyblue;
+ }
+
+</style>
+
+<div id="result"></div>
+
+<script>
+
+const radioButtons = document.querySelectorAll('input[name="radioGroup"]');
+const resultDiv = document.getElementById('result');
+
+const Data1=document.getElementById("myTextarea1").value;
+const Data2=document.getElementById("myTextarea2").value;
+const Data3=document.getElementById("myTextarea3").value;
+
+//ボタンのエレメント
+const btn1=document.getElementById('btnStart');
+const btn2=document.getElementById('btnStop');
+const btn3=document.getElementById('btnKansei');
+btn2.disabled=true;
+
+//ラベルのエレメント
+const textBox1=document.getElementById('txt1');	
+const textBox2=document.getElementById('txt2');
+const textBox3=document.getElementById('txt3');	
+
+//フィールド１のエレメント
+const fld1=document.getElementById('field1');
+
+//画面イメージのエレメント
+const imgBack = document.getElementById('imageBack');
+const ctx0 = imgBack.getContext('2d');
+const imgKB = document.getElementById('imageKB');
+const ctx1 = imgKB.getContext('2d');
+const imgMato = document.getElementById('imageMato');
+const ctx2 = imgMato.getContext('2d');
+const imgDumy = document.getElementById('imageDumy');
+const ctx3 = imgDumy.getContext('2d');
+const imgKBOrange = document.getElementById('imageKBOrange');
+const ctx4 = imgKBOrange.getContext('2d');
+const imgMatoAll = document.getElementById('imageMatoAll');
+const ctx5 = imgMatoAll.getContext('2d');
+
+// 画像オブジェクトを生成
+const image0 = new Image();
+const image1 = new Image();
+const image2 = new Image();
+const image3 = new Image();
+const image4 = new Image();
+const image5 = new Image();
+
+// 画像の読み込み完了を待つ
+let image0Loaded = false;
+let image1Loaded = false;
+let image2Loaded = false;
+let image3Loaded = false;
+let image4Loaded = false;
+let image5Loaded = false;
+
+image0.onload = () => {
+  image0Loaded = true;
+  drawImageOnimageBack();
+};
+
+image1.onload = () => {
+  image1Loaded = true;
+  drawImageOnimageKB();
+};
+
+image2.onload = () => {
+  image2Loaded = true;
+  drawImageOnimageMato();
+};
+
+image3.onload = () => {
+  image3Loaded = true;
+  drawImageOnimageDumy();
+};
+
+image4.onload = () => {
+  image4Loaded = true;
+  drawImageOnimageKBOrange();
+};
+
+image5.onload = () => {
+  image5Loaded = true;
+  drawImageOnimageMatoAll();
+};
+
+// 画像の読み込み開始
+image0.src = 'Pictures/class.jpg';  // imageBackに表示する画像のパス→とりあえずLevel1用の背景
+image1.src = 'Pictures/Key.png';    // imageKBに表示する画像のパス
+image2.src = 'Pictures/Target.png'; // imageMatoに表示する画像のパス
+image3.src = 'Pictures/class.jpg';  // imageDumyに表示する画像のパス→とりあえずLevel1用の背景
+image4.src = 'Pictures/KeyOrange.png';  // imageKBOrangeに表示する画像のパス
+image5.src = 'Pictures/TargetAll.png';  // imageMatoAllに表示する画像のパス
+
+// imageBackに画像を直接描画
+function drawImageOnimageBack() {
+    if (image0Loaded) {
+        ctx0.drawImage(image0, 0, 0, imageBack.width, imageBack.height);
+    }
+}
+
+// imageKBに画像を直接描画
+function drawImageOnimageKB() {
+    if (image1Loaded) {
+        ctx1.drawImage(image1, 0, 0, imageKB.width, imageKB.height);
+    }
+}
+
+// imageMatoに画像を直接描画
+function drawImageOnimageMato() {
+    if (image2Loaded) {
+        ctx2.drawImage(image2, 0, 0, imageMato.width, imageMato.height);
+    }
+}
+
+// imageDumyに画像を直接描画
+function drawImageOnimageDumy() {
+    if (image3Loaded) {
+        ctx3.drawImage(image3, 0, 0, imageDumy.width, imageDumy.height);
+    }
+}
+
+// imageKBOrangeに画像を直接描画
+function drawImageOnimageKBOrange() {
+    if (image4Loaded) {
+        ctx4.drawImage(image4, 0, 0, imageKB.width, imageKB.height);
+    }
+}
+
+// imageMatoAllに画像を直接描画
+function drawImageOnimageMatoAll() {
+    if (image5Loaded) {
+        ctx5.drawImage(image5, 0, 0, imageMatoAll.width, imageMatoAll.height);
+    }
+}
+
+// Audioオブジェクトを格納する配列
+const audioInstances = [];
+
+// ページ読み込み時にwavファイルを読み込む例
+const soundFiles = ['bu.wav', 'pinpon.wav', 'kansei.wav'];
+soundFiles.forEach(file => {
+    const audio = new Audio(file);
+    audio.preload = 'auto'; // あらかじめ読み込み
+    audioInstances.push(audio); // オブジェクトを配列に保存
+});
+
+let   keyPast="a";		//キーボードから取得した１つ前のキー
+let   playing=0;	//現在プレー中
+let   Level=1;		//現在のレベル
+let   cntLnNow=1;	//現在のCSVデータの何行目か(integer)
+let   cntLines=1;	//Dataの全行数
+let   strLine='';	//現在のCSVデータの1行分の文字列（,,を含む）
+let   gotData='a';	//strLineの何番目かの配列データの文字(列)
+let   posit=1;		//現在の文字列(gotData)の何文字目か(integer)
+let   cntAllLetters=0;  //Data1～３それぞれの全文字数
+let   datCommaTxt="";    //Level1は配列0と1番目、Level2,3は配列2番目以降のデータ
+let   posit2=1;		//Level2,3で、現在の文字配列[]の何番目か→[2]番目を１とする
+let   tmpSS='';		//Level2,3で、現在の文字配列[]の何番目かの文字データの一部
+let   headerL4='';	//Level4で、問題の1行目の内容(問題番号)
+let   limitedTime=0;	//Level4での制限時間
+
+//経過時間のタイマーの変数
+let startTime=0;
+let timerInterval=0;
+let stpBtn=0;
+let totalTimes=0;
+let timerInterval2=0;
+
+//正解数のカウントと誤答数のカウント
+let cntMondai=0;
+let cntRight=0;
+let cntWrong=0;
+
+
+
+
+document.addEventListener('click', function(event) {
+     const textbox = document.getElementById('label1');
+     if (event.target !== textbox && !textbox.contains(event.target)) {
+       // テキストボックス以外をクリックした場合
+       // 選択を維持するか、必要に応じてフォーカスを戻す
+       // 例：選択を維持する場合
+       textbox.focus();
+     }
+ });
+
+/**
+
+// イベントリスナーを設定する関数
+function handleRadioChange()
+{
+  // name属性が"radioGroup"で、かつ選択されているラジオボタンを取得
+  const selectedRadio = document.querySelector('input[name="radioGroup"]:checked');
+
+  // 選択されているラジオボタンが存在するか確認
+  if (selectedRadio)
+ {
+    const selectedValue = selectedRadio.value; // 選択されたラジオボタンのvalueを取得
+
+    // valueに応じて処理を振り分ける
+    if (selectedValue === "基礎編")
+    {
+	RdoBtn1();	
+    } 
+    else if (selectedValue === "初級編") 
+   {
+	RdoBtn2();
+
+    }
+    else if (selectedValue === "中級編")
+    {
+	RdoBtn3();
+    }
+    else if (selectedValue === "上級編")
+    {
+	RdoBtn4();
+
+    }
+  }
+}
+
+// すべてのラジオボタンにchangeイベントリスナーを設定
+const radioButtons = document.querySelectorAll('input[name="radioGroup"]');
+radioButtons.forEach(function(radio) {
+  radio.addEventListener('change', handleRadioChange);
+});
+
+**/
+
+
+radioButtons.forEach(radio => {
+  radio.addEventListener('click', () => {
+    let selectedValue;
+    radioButtons.forEach(r => {
+      if (r.checked) {
+        selectedValue = r.value;
+      }
+    });
+
+    const script=document.createElement('script');
+
+
+    switch (selectedValue) {
+      case '基礎編':
+	RdoBtn1();
+        break;
+      case '初級編':
+	RdoBtn2();
+        break;
+      case '中級編':
+	RdoBtn3();
+        break;
+      case '上級編':
+	RdoBtn4();
+        break;
+      default:
+        resultDiv.textContent = '何も選択されていません。';
+    }
+    document.head.appendChild(script);
+
+  });
+});
+
+//起動時の処理
+document.addEventListener("DOMContentLoaded",function()
+{
+	//alert("起動しました");
+
+	showInitial();	
+ 
+
+},{ once:true });
+
+
+</script>
+
+</body>
+</HTML>
